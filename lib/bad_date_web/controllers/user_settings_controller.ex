@@ -71,4 +71,37 @@ defmodule BadDateWeb.UserSettingsController do
     |> assign(:email_changeset, Accounts.change_user_email(user))
     |> assign(:password_changeset, Accounts.change_user_password(user))
   end
+
+  def pause_account(conn, _params) do
+    user = conn.assigns.current_user
+
+    case Accounts.pause_user(user) do 
+      {:ok, _user} ->
+        conn
+        |> put_flash(:info, "Account successfully paused.")
+        |> UserAuth.log_out_user()
+      {:error, changeset} ->
+        conn
+        |> put_flash(:error, "Unable to pause the account.")
+        |> redirect(to: ~p"/users/settings")
+    end
+  end
+
+
+
+    def unpause_account(conn, _params) do
+    user = conn.assigns.current_user
+
+    case Accounts.unpause_user(user) do 
+      {:ok, _user} ->
+        conn
+        |> put_flash(:info, "Account successfully reactivated.")
+        |> UserAuth.log_in_user(user)
+
+      {:error, changeset} ->
+        conn
+        |> put_flash(:error, "Unable to reactivate the account.")
+        |> redirect(to: ~p"/")
+    end
+  end
 end

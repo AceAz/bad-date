@@ -3,14 +3,29 @@ defmodule BadDate.Accounts.User do
   import Ecto.Changeset
 
   schema "users" do
+
+
+    field :location, :string
+    field :hobbies, :string
+    field :favorite_food, :string
+    field :description, :string
+
+
     field :email, :string
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :current_password, :string, virtual: true, redact: true
     field :confirmed_at, :utc_datetime
+    field :paused, :boolean, default: false
 
     timestamps(type: :utc_datetime)
   end
+
+   def changeset(user, attrs) do
+    user
+    |> cast(attrs, [:location, :hobbies, :favorite_food, :description, :email, :password, :hashed_password, :current_password])
+    |> validate_required([:location, :hobbies, :favorite_food, :description])
+  end  
 
   @doc """
   A user changeset for registration.
@@ -35,6 +50,12 @@ defmodule BadDate.Accounts.User do
       submitting the form), this option can be set to `false`.
       Defaults to `true`.
   """
+  def paused_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:email, :password, :paused])
+    |> validate_required([:email, :paused])
+  end
+    
   def registration_changeset(user, attrs, opts \\ []) do
     user
     |> cast(attrs, [:email, :password])

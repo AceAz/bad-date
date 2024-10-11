@@ -20,6 +20,23 @@ defmodule BadDateWeb.Router do
   scope "/", BadDateWeb do
     pipe_through :browser
 
+    get "/matches", MatchesController, :show
+
+    get "/profile/new", ProfileController, :new
+    get "/profile/:id/edit", ProfileController, :edit
+    put "/profile/:id", ProfileController, :update
+    get "/profile/:id", ProfileController, :show
+
+    post "/profile", ProfileController, :create
+    get "/profile", ProfileController, :index
+    #Messaging routes
+    resources "/messages", MessagingController, only: [:new, :create, :index]
+   
+    #Blocking routes
+    post "/block", BlockController, :block  # Route to block a user
+    delete "/block/:blocked_id", BlockController, :unblock  # Route to unblock a user
+    get "/blocked", BlockController, :index
+   
     get "/", PageController, :home
   end
 
@@ -76,5 +93,12 @@ defmodule BadDateWeb.Router do
     post "/users/confirm", UserConfirmationController, :create
     get "/users/confirm/:token", UserConfirmationController, :edit
     post "/users/confirm/:token", UserConfirmationController, :update
+  end
+
+  scope "/", BadDateWeb do
+    pipe_through [:browser]
+
+    patch "/users/pause_account", UserSettingsController, :pause_account
+    patch "/users/unpause_account", UserSettingsController, :unpause_account
   end
 end

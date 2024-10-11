@@ -1,0 +1,40 @@
+<div class="space-y-6">
+  <h1>Blocked Users</h1>
+
+  # List Blocked Users
+  <%= if Enum.empty?(@blocked_users) do %>
+    <p>You haven't blocked any users yet.</p>
+  <% else %>
+    <%= for blocked <- @blocked_users do %>
+      <div class="p-4 border border-gray-200 rounded-lg">
+        <strong>Blocked User:</strong> <%= blocked.email %> <!-- Use blocked.email directly -->
+        #Unblock Button
+        <form action={~p"/block/:blocked_id"} method="post">
+          <input type="hidden" name="_method" value="delete" />
+          <button type="submit">Unblock</button>
+        </form>
+      </div>
+    <% end %>
+  <% end %>
+</div>
+
+<div class="space-y-12 divide-y">
+  <div>
+    # Block User Form 
+    <.simple_form :let={f} for={@changeset} action={~p"/block"} id="block_user_form">
+      <.error :if={@changeset.action}>
+        Oops, something went wrong! Please check the errors below.
+      </.error>
+
+      # Block User by Email 
+      <.input field={f[:blocked_user_email]} type="email" label="Block User By Email" required />
+
+      # Submit Button 
+      <:actions>
+        <.button phx-disable-with="Blocking...">Block User</.button>
+      </:actions>
+    </.simple_form>
+  </div>
+</div> 
+
+

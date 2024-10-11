@@ -1,0 +1,16 @@
+<.header class="text-center">
+  Your Worst Match
+  <:subtitle>We found the worst possible match for you</:subtitle>
+</.header>
+
+<div class="space-y-6">
+  <%= if @worst_match do %>
+    <h2><%= @worst_match.email %></h2>
+    <p><strong>Location:</strong> <%= @worst_match.location %></p>
+    <p><strong>Hobbies:</strong> <%= @worst_match.hobbies %></p>
+    <p><strong>Favorite Food:</strong> <%= @worst_match.favorite_food %></p>
+    <p><strong>Description:</strong> <%= @worst_match.description %></p>
+  <% else %>
+    <p>No worst match could be found.</p>
+  <% end %>
+</div>

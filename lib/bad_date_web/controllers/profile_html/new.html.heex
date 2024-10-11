@@ -1,0 +1,31 @@
+<.header class="text-center">
+  Create Your Profile
+  <:subtitle>Fill out your profile details</:subtitle>
+</.header>
+
+<div class="space-y-12 divide-y">
+  <div>
+    <.simple_form :let={f} for={@changeset} action={~p"/profile"} method="post" id="create_profile_form">
+      <.error :if={@changeset.action}>
+        Oops, something went wrong! Please check the errors below.
+      </.error>
+
+      <!-- Location Field -->
+      <.input field={f[:location]} type="text" label="Location" required />
+
+      <!-- Hobbies Field -->
+      <.input field={f[:hobbies]} type="text" label="Hobbies" required />
+
+      <!-- Favorite Food Field -->
+      <.input field={f[:favorite_food]} type="text" label="Favorite Food" required />
+
+      <!-- Description Field -->
+      <.input field={f[:description]} type="textarea" label="Description" required />
+
+      <!-- Submit Button -->
+      <:actions>
+        <.button phx-disable-with="Creating...">Create Profile</.button>
+      </:actions>
+    </.simple_form>
+  </div>
+</div>

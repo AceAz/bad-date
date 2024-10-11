@@ -2,11 +2,96 @@ defmodule BadDate.Accounts do
   @moduledoc """
   The Accounts context.
   """
-
-  import Ecto.Query, warn: false
+ 
+  import Ecto.Query
   alias BadDate.Repo
+  alias BadDate.Accounts.{User, UserToken, UserNotifier, Block}
+  alias BadDate.Accounts.Block 
 
-  alias BadDate.Accounts.{User, UserToken, UserNotifier}
+   # Function to split comma-separated hobbies into a list for comparison
+  defp split_hobbies(hobbies) do
+    hobbies
+    |> String.split(",", trim: true)
+    |> Enum.map(&String.trim/1)
+  end
+
+  # Find the worst possible match for a user based on the worst match criteria
+  def find_worst_match(user) do
+    user_hobbies = split_hobbies(user.hobbies)
+
+    # Query to find the worst match
+    Repo.one(
+      from(u in User,
+        where: u.id != ^user.id,  # Exclude the current user
+        where: u.location != ^user.location,  # Opposite location
+        where: ^Enum.reduce(user_hobbies, dynamic(true), fn hobby, acc ->
+          dynamic([u], not like(u.hobbies, ^"%#{hobby}%") and ^acc)
+        end),  # Ensure no common hobbies
+        where: u.favorite_food != ^user.favorite_food,  # Different favorite foods
+        order_by: fragment("RANDOM()"),  # Randomize the worst match
+        limit: 1
+      )
+    )
+  end
+
+   def change_user_profile(user) do
+    User.changeset(user, %{})
+  end
+
+  def update_user_profile(user, attrs) do
+    user
+    |> User.changeset(attrs)
+    |> Repo.update()
+  end
+
+ 
+  ## Blocking 
+  # List all users blocked by the current user
+  def list_blocked_users(user_id) do
+    Repo.all(from b in Block, where: b.blocker_id == ^user_id, join: u in User, on: u.id == b.blocked_id, select: u)
+  end
+
+  # Block a user by their email
+  def block_user_by_email(blocker_id, email) do
+    case Repo.get_by(User, email: email) do
+      nil ->
+        {:error, :not_found} # If user with the email is not found
+
+      user ->
+        block_user(blocker_id, user.id)
+    end
+  end
+  
+  # Block a user by ID
+  def block_user(blocker_id, blocked_id) do
+    %Block{}
+    |> Block.changeset(%{blocker_id: blocker_id, blocked_id: blocked_id})
+    |> Repo.insert()
+  end
+
+   # Unblock a user
+  def unblock_user(blocker_id, blocked_id) do
+    Repo.get_by(Block, blocker_id: blocker_id, blocked_id: blocked_id)
+    |> Repo.delete()
+  end
+
+  # Check if a user is blocked
+  def is_blocked?(blocker_id, blocked_id) do
+    Repo.exists?(from b in Block, where: b.blocker_id == ^blocker_id and b.blocked_id == ^blocked_id)
+  end
+  
+  # Changeset for the block user form
+  def change_block(%Block{} = block) do
+    Block.changeset(block, %{})
+  end
+ 
+ # Changeset for blocking a user by email
+  def change_block(%{} = params) do
+    Ecto.Changeset.cast(%Block{}, params, [:blocked_user_email])
+    |> Ecto.Changeset.validate_required([:blocked_user_email])
+    |> Ecto.Changeset.validate_format(:blocked_user_email, ~r/@/)
+  end
+
 
   ## Database getters
 
@@ -22,7 +107,7 @@ defmodule BadDate.Accounts do
       nil
 
   """
-  def get_user_by_email(email) when is_binary(email) do
+  def get_user_by_email(email) do
     Repo.get_by(User, email: email)
   end
 
@@ -350,4 +435,19 @@ defmodule BadDate.Accounts do
       {:error, :user, changeset, _} -> {:error, changeset}
     end
   end
+
+  #Function to Pause an account
+  def pause_user(%User{} = user) do
+    user
+    |> User.paused_changeset(%{paused: true})
+    |> Repo.update()
+  end
+
+  #Function to unpause an account
+  def unpause_user(%User{} = user) do 
+    user
+    |> User.paused_changeset(%{paused: false})
+    |> Repo.update()
+  end
 end
+

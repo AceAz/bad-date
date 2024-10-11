@@ -17,6 +17,54 @@
         <li class="text-[0.8125rem] leading-6 text-zinc-900">
           <%= @current_user.email %>
         </li>
+             <li>
+         <.link
+            href={~p"/matches"}
+            class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
+          >
+            Your Matches
+          </.link>
+        </li>
+            <li>
+         <.link
+            href={~p"/profile/:id"}
+            class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
+          >
+            View Profile
+          </.link>
+        </li>     
+           <li> 
+         <.link
+            href={~p"/profile/new"}
+            class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
+          >
+            Create Profile
+          </.link>
+        </li>
+            <li>
+          <.link
+            href={~p"/blocked"}
+            class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
+          >
+            Block A User
+          </.link>
+        </li>
+           <li>
+          <.link
+            href={~p"/messages/new"}
+            class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
+          >
+            New Messages
+          </.link>
+        </li>
+        <li>
+          <.link
+            href={~p"/messages"}
+            class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
+          >
+            Messages
+          </.link>
+        </li>
         <li>
           <.link
             href={~p"/users/settings"}
@@ -33,6 +81,27 @@
           >
             Log out
           </.link>
+        </li>
+        <li>
+          <%= if @current_user.paused do %>
+            <.link
+              href={~p"/users/unpause_account"}
+              method="patch"
+              class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
+              phx-disable-with="Unpausing..."
+            >
+              Unpause Account
+            </.link>
+          <% else %>
+            <.link
+              href={~p"/users/pause_account"}
+              method="patch"
+              class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
+              phx-disable-with="Pausing..."
+            >
+              Pause Account
+            </.link>
+          <% end %>
         </li>
       <% else %>
         <li>

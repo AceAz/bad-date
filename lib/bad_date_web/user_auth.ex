@@ -226,4 +226,17 @@ defmodule BadDateWeb.UserAuth do
   defp maybe_store_return_to(conn), do: conn
 
   defp signed_in_path(_conn), do: ~p"/"
+
+  """
+  def require_active_user(conn, _opts) do
+    if conn.assigns.current_user && conn.assigns.current_user.paused do
+      conn
+      |> put_flash(:error, "Your account is currently paused.")
+      |> redirect(to: ~p"/users/log_in")
+      |> halt()
+    else
+      conn
+    end
+  end
+  """
 end

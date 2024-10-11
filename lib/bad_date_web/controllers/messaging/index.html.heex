@@ -1,0 +1,20 @@
+<.header class="text-center">
+  Your Messages
+  <:subtitle>Messages you've sent or received</:subtitle>
+</.header>
+
+<div class="space-y-6">
+  <%= if Enum.empty?(@messages) do %>
+    <p>You have no messages yet.</p>
+  <% else %>
+    <%= for message <- @messages do %>
+      <div class="p-4 border border-gray-200 rounded-lg">
+        <strong>From:</strong> <%= message.sender_id %> <br>
+        <strong>To:</strong> <%= message.recipient_id %> <br>
+        <strong>Content:</strong> <%= message.content %> <br>
+        <strong>Sent At:</strong> <%= message.inserted_at %>
+      </div>
+    <% end %>
+  <% end %>
+</div>
+
